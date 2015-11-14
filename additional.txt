@@ -1,0 +1,4 @@
+get airports (more reliable in the information than google ?):
+
+http://api.geonames.org/findNearby?lat=40.776902&lng=-73.968887&fcode=AIRP&radius=25&maxRows=100&username=YOURUSERNAME
+
