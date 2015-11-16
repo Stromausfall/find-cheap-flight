@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	googleMapsApiCredentials := "YOUR GOOGLE API KEY"
+	googleMapsApiCredentials := "google maps API key"
 	
 	// install handlers
 	go http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

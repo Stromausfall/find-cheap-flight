@@ -4,7 +4,21 @@ import (
 	"fmt"
 	"runtime"
 	"os/exec"
+	"time"
 )
+
+// returns the date in format YYYY-MM-DD
+func DateToString(date time.Time) string {
+	return date.Format("2006-01-02")
+}
+
+func DateStringNow(offsetInDays int) string {
+	duration := time.Hour * 24 * time.Duration(int64(offsetInDays))
+	
+	dateToConvert := time.Now().Add(duration)
+	
+	return DateToString(dateToConvert)
+}
 
 func CheckErr(err error, info string) {
 	if err != nil {
