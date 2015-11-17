@@ -1,6 +1,7 @@
 package data
 
 import (
+	"strconv"
 	"net/http"
 	"html/template"
 	"github.com/stromausfall/find-cheap-flight/utils"
@@ -39,8 +40,8 @@ const dataHtmlData = `
 			<form action="/{{.NextPage}}" method="post">
 				<b>Time</b>
 				<ul>
-					<li>Earliest Departure : <input id="earliestReturnInput" type="date" name="earliestDeparture" min="{{.MinEarliestDeparture}}" value="{{.EarliestDeparture}}" {{if not .InputEnabled}}disabled{{end}}></li>
-					<li>Latest Return : <input id="latestReturnInput" type="date" name="latestDeparture" min="{{.MinLatestDeparture}}" value="{{.LatestDeparture}}" {{if not .InputEnabled}}disabled{{end}}></li>
+					<li>Earliest Departure : <input type="date" name="earliestDeparture" min="{{.MinEarliestDeparture}}" value="{{.EarliestDeparture}}" {{if not .InputEnabled}}disabled{{end}}></li>
+					<li>Latest Return : <input type="date" name="latestDeparture" min="{{.MinLatestDeparture}}" value="{{.LatestDeparture}}" {{if not .InputEnabled}}disabled{{end}}></li>
 					<li>Minimum stay : <input type="number" name="minimumStayInput" min="1" max="1000" value="{{.MinStay}}" {{if not .InputEnabled}}disabled{{end}}></li>
 					<li>Maximum stay : <input type="number" name="maximumStayInput" min="1" max="1000" value="{{.MaxStay}}" {{if not .InputEnabled}}disabled{{end}}></li>
 				</ul>
@@ -52,7 +53,7 @@ const dataHtmlData = `
 					<li>range: <span id="startLocationRange"/></li>
 				</ul>
 				<input type="hidden" id="startLocationLatitudeInput" name="startLocationLatitudeInput" value="">
-				<input type="hidden" id="startLocationLongitudeInput"name="startLocationLongitudeInput" value="">
+				<input type="hidden" id="startLocationLongitudeInput" name="startLocationLongitudeInput" value="">
 				<input type="hidden" id="startLocationRangeInput" name="startLocationRangeInput" value="">
 				<b>Destination</b>
 				<ul>
@@ -119,14 +120,14 @@ function initMap() {
         document.getElementById('startLocationRange').innerHTML = Math.round(startCircle.radius / 1000) + " km";
         document.getElementById('startLocationLatitudeInput').value = startCircle.center.lat();
         document.getElementById('startLocationLongitudeInput').value = startCircle.center.lng();
-        document.getElementById('startLocationRangeInput').value = Math.round(startCircle.radius / 1000);
+        document.getElementById('startLocationRangeInput').value = startCircle.radius;
 		
         document.getElementById('destinationLocationLatitude').innerHTML = destinationCircle.center.lat();
         document.getElementById('destinationLocationLongitude').innerHTML = destinationCircle.center.lng();
         document.getElementById('destinationLocationRange').innerHTML = Math.round(destinationCircle.radius / 1000) + " km";
         document.getElementById('destinationLocationLatitudeInput').value = destinationCircle.center.lat();
         document.getElementById('destinationLocationLongitudeInput').value = destinationCircle.center.lng();
-        document.getElementById('destinationLocationRangeInput').value = Math.round(destinationCircle.radius / 1000);
+        document.getElementById('destinationLocationRangeInput').value = destinationCircle.radius;
 	}, 500);
 }
 
@@ -152,8 +153,8 @@ type dataEntryDisplayArgs struct {
 	MinEarliestDeparture string
 	LatestDeparture string
 	MinLatestDeparture string
-	MinStay int
-	MaxStay int
+	MinStay int32
+	MaxStay int32
 	NextPage string
 	InputEnabled bool
 	PageTitle string
@@ -189,6 +190,32 @@ func createDefaultDataEntryDisplayArgs(googleMapsApiCredentials string) dataEntr
 	return result
 }
 
+func getStringFormValue(r *http.Request, storeValue *string, formValueKey string) {
+	if r.FormValue(formValueKey) != "" {
+		*storeValue = r.FormValue(formValueKey)
+	}
+}
+
+func getFloatFormValue(r *http.Request, storeValue *float32, formValueKey string) {
+	if r.FormValue(formValueKey) != "" {
+		value, err := strconv.ParseFloat(r.FormValue(formValueKey), 32)
+		
+		if err == nil {
+			*storeValue = float32(value)
+		}
+	}
+}
+
+func getIntFormValue(r *http.Request, storeValue *int32, formValueKey string) {
+	if r.FormValue(formValueKey) != "" {
+		value, err := strconv.ParseInt(r.FormValue(formValueKey), 10, 32)
+		
+		if err == nil {
+			*storeValue = int32(value)
+		}
+	}
+}
+
 func DisplayPage(
 		w http.ResponseWriter,
 		r *http.Request,
@@ -196,11 +223,27 @@ func DisplayPage(
 		nextPage string,
 		inputEnabled bool,
 		pageTitle string) {
+	// we need this in order to get POST form data
+	r.ParseMultipartForm(15485760)
+		
 	arguments := createDefaultDataEntryDisplayArgs(googleMapsApiCredentials)
 	arguments.NextPage = nextPage
 	arguments.InputEnabled = inputEnabled
 	arguments.PageTitle = pageTitle
 	
+	// get values from POST
+	getStringFormValue(r, &arguments.EarliestDeparture, "earliestDeparture")
+	getStringFormValue(r, &arguments.LatestDeparture, "latestDeparture")
+	getFloatFormValue(r, &arguments.StartLat, "startLocationLatitudeInput")
+	getFloatFormValue(r, &arguments.StartLng, "startLocationLongitudeInput")
+	getFloatFormValue(r, &arguments.StartRange, "startLocationRangeInput")
+	getFloatFormValue(r, &arguments.DestLat, "destinationLocationLatitudeInput")
+	getFloatFormValue(r, &arguments.DestLng, "destinationLocationLongitudeInput")
+	getFloatFormValue(r, &arguments.DestRange, "destinationLocationRangeInput")
+	getIntFormValue(r, &arguments.MinStay, "minimumStayInput")
+	getIntFormValue(r, &arguments.MaxStay, "maximumStayInput")
+
+	// create, initialize and use the template
 	uninitializedTemplate := template.New("Data entry template")
 	initializedTempalte, err := uninitializedTemplate.Parse(dataHtmlData)
 	utils.CheckErr(err, "problem while parsing template")

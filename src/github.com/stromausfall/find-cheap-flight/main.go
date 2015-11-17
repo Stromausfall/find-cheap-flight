@@ -7,19 +7,13 @@ import (
 )
 
 func main() {
-	googleMapsApiCredentials := "google maps API key"
+	googleMapsApiCredentials := "GOOGLE API KEY"
 	
 	// install handlers
-	go http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// we need this in order to get POST form data
-		r.ParseMultipartForm(15485760)
-	
+	go http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {	
 		data.DisplayDataEntry(w, r, googleMapsApiCredentials)
 	})
 	go http.HandleFunc("/selection", func(w http.ResponseWriter, r *http.Request) {
-		// we need this in order to get POST form data
-		r.ParseMultipartForm(15485760)
-		
 		data.DisplayDataSelection(w, r, googleMapsApiCredentials)
 	})
 
