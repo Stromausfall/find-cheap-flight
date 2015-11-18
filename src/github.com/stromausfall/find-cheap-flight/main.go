@@ -7,14 +7,15 @@ import (
 )
 
 func main() {
-	googleMapsApiCredentials := "GOOGLE API KEY"
+	googleMapsApiCredentials := "??"
+	genomeAccount := "??"
 	
 	// install handlers
 	go http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {	
 		data.DisplayDataEntry(w, r, googleMapsApiCredentials)
 	})
 	go http.HandleFunc("/selection", func(w http.ResponseWriter, r *http.Request) {
-		data.DisplayDataSelection(w, r, googleMapsApiCredentials)
+		data.DisplayDataSelection(w, r, googleMapsApiCredentials, genomeAccount)
 	})
 
 	utils.OpenURL("http://localhost:80")

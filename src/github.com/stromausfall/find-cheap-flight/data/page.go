@@ -139,7 +139,7 @@ function initMap() {
 </html>
 `
 
-type dataEntryDisplayArgs struct {
+type DataEntryDisplayArgs struct {
 	GoogleMapsApiCredentials string
 	StartLng float32
 	StartLat float32
@@ -160,9 +160,9 @@ type dataEntryDisplayArgs struct {
 	PageTitle string
 }
 
-func createDefaultDataEntryDisplayArgs(googleMapsApiCredentials string) dataEntryDisplayArgs {
+func createDefaultDataEntryDisplayArgs(googleMapsApiCredentials string) (*DataEntryDisplayArgs) {
 	// file with default values
-	result := dataEntryDisplayArgs{
+	result := DataEntryDisplayArgs{
 		GoogleMapsApiCredentials: googleMapsApiCredentials,
 		StartLat: 50.0,
 		StartLng: 14.4,
@@ -187,7 +187,7 @@ func createDefaultDataEntryDisplayArgs(googleMapsApiCredentials string) dataEntr
 	result.CntrLat = (result.StartLat + result.DestLat) / 2
 	result.CntrLng = (result.StartLng + result.DestLng) / 2
 	
-	return result
+	return &result
 }
 
 func getStringFormValue(r *http.Request, storeValue *string, formValueKey string) {
@@ -222,7 +222,7 @@ func DisplayPage(
 		googleMapsApiCredentials string,
 		nextPage string,
 		inputEnabled bool,
-		pageTitle string) {
+		pageTitle string) (*DataEntryDisplayArgs) {
 	// we need this in order to get POST form data
 	r.ParseMultipartForm(15485760)
 		
@@ -250,4 +250,6 @@ func DisplayPage(
 
 	err = initializedTempalte.Execute(w, arguments)
 	utils.CheckErr(err, "problem while executing template")
+	
+	return arguments
 }
