@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-	googleMapsApiCredentials := "??"
-	genomeAccount := "??"
+	googleMapsApiCredentials := "asdf"
+	genomeAccount := "asdf"
 	
 	// install handlers
 	go http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {	
