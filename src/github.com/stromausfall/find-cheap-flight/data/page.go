@@ -216,8 +216,7 @@ func getIntFormValue(r *http.Request, storeValue *int32, formValueKey string) {
 	}
 }
 
-func DisplayPage(
-		w http.ResponseWriter,
+func CreateArguments(
 		r *http.Request,
 		googleMapsApiCredentials string,
 		nextPage string,
@@ -242,7 +241,13 @@ func DisplayPage(
 	getFloatFormValue(r, &arguments.DestRange, "destinationLocationRangeInput")
 	getIntFormValue(r, &arguments.MinStay, "minimumStayInput")
 	getIntFormValue(r, &arguments.MaxStay, "maximumStayInput")
+	
+	return arguments
+}
 
+func DisplayPage(
+		w http.ResponseWriter,
+		arguments *DataEntryDisplayArgs) {
 	// create, initialize and use the template
 	uninitializedTemplate := template.New("Data entry template")
 	initializedTempalte, err := uninitializedTemplate.Parse(dataHtmlData)
@@ -250,6 +255,4 @@ func DisplayPage(
 
 	err = initializedTempalte.Execute(w, arguments)
 	utils.CheckErr(err, "problem while executing template")
-	
-	return arguments
 }
