@@ -46,7 +46,7 @@ const dataHtmlData = `
 					<li>Maximum stay : <input type="number" name="maximumStayInput" min="1" max="1000" value="{{.MaxStay}}" {{if not .InputEnabled}}disabled{{end}}></li>
 				</ul>
 
-				<b>Start</b>
+				<b><font color="green">Start</font></b>
 				<ul>
 					<li>latitude: <span id="startLocationLatitude"/></li>
 					<li>longitude: <span id="startLocationLongitude"/></li>
@@ -55,16 +55,17 @@ const dataHtmlData = `
 				<input type="hidden" id="startLocationLatitudeInput" name="startLocationLatitudeInput" value="">
 				<input type="hidden" id="startLocationLongitudeInput" name="startLocationLongitudeInput" value="">
 				<input type="hidden" id="startLocationRangeInput" name="startLocationRangeInput" value="">
-				<b>Destination</b>
+				<b><font color="blue">Destination</font></b>
 				<ul>
 					<li>latitude: <span id="destinationLocationLatitude"/></li>
 					<li>longitude: <span id="destinationLocationLongitude"/></li>
 					<li>range: <span id="destinationLocationRange"/></li>
 				</ul>
+				{{.DataToAddBeforeSubmitButton}}
 				<input type="hidden" id="destinationLocationLatitudeInput" name="destinationLocationLatitudeInput" value="">
 				<input type="hidden" id="destinationLocationLongitudeInput" name="destinationLocationLongitudeInput" value="">
 				<input type="hidden" id="destinationLocationRangeInput" name="destinationLocationRangeInput" value="">
-				<div><input type="submit" value="Check values"></div>
+				<div><input type="submit" value="{{.SubmitButtonText}}"></div>
 			</form>
 		</div>
 		<div id="map"></div>
@@ -115,6 +116,14 @@ function initMap() {
     });
   
 	window.setInterval(function(){
+		// geonames has a max range of 300 km !
+		if (destinationCircle.radius > 300000) {
+			destinationCircle.setRadius(300000)
+		}
+		if (startCircle.radius > 300000) {
+			startCircle.setRadius(300000)
+		}
+		
         document.getElementById('startLocationLatitude').innerHTML = startCircle.center.lat();
         document.getElementById('startLocationLongitude').innerHTML = startCircle.center.lng();
         document.getElementById('startLocationRange').innerHTML = Math.round(startCircle.radius / 1000) + " km";
@@ -158,6 +167,8 @@ type DataEntryDisplayArgs struct {
 	NextPage string
 	InputEnabled bool
 	PageTitle string
+	DataToAddBeforeSubmitButton template.HTML
+	SubmitButtonText string
 }
 
 func createDefaultDataEntryDisplayArgs(googleMapsApiCredentials string) (*DataEntryDisplayArgs) {
@@ -175,6 +186,7 @@ func createDefaultDataEntryDisplayArgs(googleMapsApiCredentials string) (*DataEn
 		NextPage: "",
 		InputEnabled: false,
 		PageTitle: "default page title",
+		SubmitButtonText: "default submit button",
 	}
 	
 	// calculate default dates

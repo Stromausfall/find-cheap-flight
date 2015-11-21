@@ -14,7 +14,7 @@ func main() {
 	go http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {	
 		data.DisplayDataEntry(w, r, googleMapsApiCredentials)
 	})
-	go http.HandleFunc("/selection", func(w http.ResponseWriter, r *http.Request) {
+	go http.HandleFunc("/selectAirports", func(w http.ResponseWriter, r *http.Request) {
 		data.DisplayDataSelection(w, r, googleMapsApiCredentials, geonameAccount)
 	})
 
