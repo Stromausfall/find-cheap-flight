@@ -40,10 +40,10 @@ const dataHtmlData = `
 			<form action="/{{.NextPage}}" method="post">
 				<b>Time</b>
 				<ul>
-					<li>Earliest Departure : <input type="date" name="earliestDeparture" min="{{.MinEarliestDeparture}}" value="{{.EarliestDeparture}}" {{if not .InputEnabled}}disabled{{end}}></li>
-					<li>Latest Return : <input type="date" name="latestDeparture" min="{{.MinLatestDeparture}}" value="{{.LatestDeparture}}" {{if not .InputEnabled}}disabled{{end}}></li>
-					<li>Minimum stay : <input type="number" name="minimumStayInput" min="1" max="1000" value="{{.MinStay}}" {{if not .InputEnabled}}disabled{{end}}></li>
-					<li>Maximum stay : <input type="number" name="maximumStayInput" min="1" max="1000" value="{{.MaxStay}}" {{if not .InputEnabled}}disabled{{end}}></li>
+					<li>Earliest Departure : <input type="date" name="earliestDeparture" min="{{.MinEarliestDeparture}}" value="{{.EarliestDeparture}}" {{if not .InputEnabled}}readonly="readonly"{{end}}></li>
+					<li>Latest Return : <input type="date" name="latestDeparture" min="{{.MinLatestDeparture}}" value="{{.LatestDeparture}}" {{if not .InputEnabled}}readonly="readonly"{{end}}></li>
+					<li>Minimum stay : <input type="number" name="minimumStayInput" min="1" max="1000" value="{{.MinStay}}" {{if not .InputEnabled}}readonly="readonly"{{end}}></li>
+					<li>Maximum stay : <input type="number" name="maximumStayInput" min="1" max="1000" value="{{.MaxStay}}" {{if not .InputEnabled}}readonly="readonly"{{end}}></li>
 				</ul>
 
 				<b><font color="green">Start</font></b>

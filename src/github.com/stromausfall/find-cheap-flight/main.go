@@ -17,6 +17,9 @@ func main() {
 	go http.HandleFunc("/selectAirports", func(w http.ResponseWriter, r *http.Request) {
 		data.DisplayDataSelection(w, r, googleMapsApiCredentials, geonameAccount)
 	})
+	go http.HandleFunc("/dataVerification", func(w http.ResponseWriter, r *http.Request) {
+		data.DisplayDataVerification(w, r, googleMapsApiCredentials, geonameAccount)
+	})
 
 	utils.OpenURL("http://localhost:80")
 

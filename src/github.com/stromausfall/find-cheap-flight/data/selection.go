@@ -18,7 +18,7 @@ const validAirportsHtmlData = `
 	<b>{{$.Name}}</b>
 	<ul>
 {{range $index, $result := $.Items}}
-		<li><input type="checkbox" name="selected-airport#{{$index}}" value="{{$result.Iata}}" id="{{$.ShortName}}-id-{{$index}}">
+		<li><input type="checkbox" name="selected-{{$.ShortName}}-airport#{{$index}}" value="{{$result.Iata}}" id="{{$.ShortName}}-id-{{$index}}">
             {{$result.Iata}} ({{$result.Name}}) - Distance : {{$result.Distance}}</br>
 		</li>
 {{end}}
@@ -48,7 +48,7 @@ func createAiportsHtmls(name, shortName string, items *[]geoinfo.AirportData) te
 }
 
 func DisplayDataSelection(w http.ResponseWriter, r *http.Request, googleMapsApiCredentials string, geonameAccount string) {
-	arguments := CreateArguments(r, googleMapsApiCredentials, "????", false, "Find Cheap Flights - data entry II")
+	arguments := CreateArguments(r, googleMapsApiCredentials, "dataVerification", false, "Find Cheap Flights - data entry II")
 	arguments.SubmitButtonText = "Submit Airports"
 
 	startAirports := geoinfo.GetAirports(arguments.StartLat, arguments.StartLng, arguments.StartRange, geonameAccount)
