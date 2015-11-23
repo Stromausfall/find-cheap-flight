@@ -12,6 +12,13 @@ func DateToString(date time.Time) string {
 	return date.Format("2006-01-02")
 }
 
+func DateFromString(date string) time.Time {
+	result, err := time.Parse("2006-01-02", date)
+	CheckErr(err, "unable to parse date !")
+	
+	return result
+}
+
 func DateStringNow(offsetInDays int) string {
 	duration := time.Hour * 24 * time.Duration(int64(offsetInDays))
 	
