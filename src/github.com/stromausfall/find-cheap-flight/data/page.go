@@ -1,10 +1,10 @@
 package data
 
 import (
-	"strconv"
-	"net/http"
-	"html/template"
 	"github.com/stromausfall/find-cheap-flight/utils"
+	"html/template"
+	"net/http"
+	"strconv"
 )
 
 const dataHtmlData = `
@@ -149,56 +149,56 @@ function initMap() {
 `
 
 type DataEntryDisplayArgs struct {
-	GoogleMapsApiCredentials string
-	StartLng float32
-	StartLat float32
-	StartRange float32
-	DestLng float32
-	DestLat float32
-	DestRange float32
-	CntrLng float32
-	CntrLat float32	
-	EarliestDeparture string
-	MinEarliestDeparture string
-	LatestDeparture string
-	MinLatestDeparture string
-	MinStay int32
-	MaxStay int32
-	NextPage string
-	InputEnabled bool
-	PageTitle string
+	GoogleMapsApiCredentials    string
+	StartLng                    float32
+	StartLat                    float32
+	StartRange                  float32
+	DestLng                     float32
+	DestLat                     float32
+	DestRange                   float32
+	CntrLng                     float32
+	CntrLat                     float32
+	EarliestDeparture           string
+	MinEarliestDeparture        string
+	LatestDeparture             string
+	MinLatestDeparture          string
+	MinStay                     int32
+	MaxStay                     int32
+	NextPage                    string
+	InputEnabled                bool
+	PageTitle                   string
 	DataToAddBeforeSubmitButton template.HTML
-	SubmitButtonText string
+	SubmitButtonText            string
 }
 
-func createDefaultDataEntryDisplayArgs(googleMapsApiCredentials string) (*DataEntryDisplayArgs) {
+func createDefaultDataEntryDisplayArgs(googleMapsApiCredentials string) *DataEntryDisplayArgs {
 	// file with default values
 	result := DataEntryDisplayArgs{
 		GoogleMapsApiCredentials: googleMapsApiCredentials,
-		StartLat: 50.0,
-		StartLng: 14.4,
-		StartRange: 50000,
-		DestLat: 48.2,
-		DestLng: 16.3,
-		DestRange: 50000,
-		MinStay: 1,
-		MaxStay: 5,
-		NextPage: "",
-		InputEnabled: false,
-		PageTitle: "default page title",
-		SubmitButtonText: "default submit button",
+		StartLat:                 50.0,
+		StartLng:                 14.4,
+		StartRange:               50000,
+		DestLat:                  48.2,
+		DestLng:                  16.3,
+		DestRange:                50000,
+		MinStay:                  1,
+		MaxStay:                  5,
+		NextPage:                 "",
+		InputEnabled:             false,
+		PageTitle:                "default page title",
+		SubmitButtonText:         "default submit button",
 	}
-	
+
 	// calculate default dates
 	result.MinEarliestDeparture = utils.DateStringNow(0)
 	result.MinLatestDeparture = utils.DateStringNow(1)
 	result.EarliestDeparture = result.MinEarliestDeparture
 	result.LatestDeparture = result.MinLatestDeparture
-	
-	// calculate center 
+
+	// calculate center
 	result.CntrLat = (result.StartLat + result.DestLat) / 2
 	result.CntrLng = (result.StartLng + result.DestLng) / 2
-	
+
 	return &result
 }
 
@@ -211,7 +211,7 @@ func getStringFormValue(r *http.Request, storeValue *string, formValueKey string
 func getFloatFormValue(r *http.Request, storeValue *float32, formValueKey string) {
 	if r.FormValue(formValueKey) != "" {
 		value, err := strconv.ParseFloat(r.FormValue(formValueKey), 32)
-		
+
 		if err == nil {
 			*storeValue = float32(value)
 		}
@@ -221,7 +221,7 @@ func getFloatFormValue(r *http.Request, storeValue *float32, formValueKey string
 func getIntFormValue(r *http.Request, storeValue *int32, formValueKey string) {
 	if r.FormValue(formValueKey) != "" {
 		value, err := strconv.ParseInt(r.FormValue(formValueKey), 10, 32)
-		
+
 		if err == nil {
 			*storeValue = int32(value)
 		}
@@ -229,19 +229,19 @@ func getIntFormValue(r *http.Request, storeValue *int32, formValueKey string) {
 }
 
 func CreateArguments(
-		r *http.Request,
-		googleMapsApiCredentials string,
-		nextPage string,
-		inputEnabled bool,
-		pageTitle string) (*DataEntryDisplayArgs) {
+	r *http.Request,
+	googleMapsApiCredentials string,
+	nextPage string,
+	inputEnabled bool,
+	pageTitle string) *DataEntryDisplayArgs {
 	// we need this in order to get POST form data
 	r.ParseMultipartForm(15485760)
-		
+
 	arguments := createDefaultDataEntryDisplayArgs(googleMapsApiCredentials)
 	arguments.NextPage = nextPage
 	arguments.InputEnabled = inputEnabled
 	arguments.PageTitle = pageTitle
-	
+
 	// get values from POST
 	getStringFormValue(r, &arguments.EarliestDeparture, "earliestDeparture")
 	getStringFormValue(r, &arguments.LatestDeparture, "latestDeparture")
@@ -253,13 +253,13 @@ func CreateArguments(
 	getFloatFormValue(r, &arguments.DestRange, "destinationLocationRangeInput")
 	getIntFormValue(r, &arguments.MinStay, "minimumStayInput")
 	getIntFormValue(r, &arguments.MaxStay, "maximumStayInput")
-	
+
 	return arguments
 }
 
 func DisplayPage(
-		w http.ResponseWriter,
-		arguments *DataEntryDisplayArgs) {
+	w http.ResponseWriter,
+	arguments *DataEntryDisplayArgs) {
 	// create, initialize and use the template
 	uninitializedTemplate := template.New("Data entry template")
 	initializedTempalte, err := uninitializedTemplate.Parse(dataHtmlData)

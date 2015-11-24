@@ -8,7 +8,7 @@ import (
 
 func main() {
 	googleMapsApiCredentials := "GOOGLE MAPS API CREDENTIALS"
-	geonameAccount := "GEONAME ACCOUNT"
+	geonameAccount := "GEONAME ACCOUNT" 
 	
 	// install handlers
 	go http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {	

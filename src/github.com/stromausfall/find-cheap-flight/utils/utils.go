@@ -19,10 +19,14 @@ func DateFromString(date string) time.Time {
 	return result
 }
 
-func DateStringNow(offsetInDays int) string {
+func RawDateNow(offsetInDays int) time.Time {
 	duration := time.Hour * 24 * time.Duration(int64(offsetInDays))
 	
-	dateToConvert := time.Now().Add(duration)
+	return time.Now().Add(duration)
+}
+
+func DateStringNow(offsetInDays int) string {
+	dateToConvert := RawDateNow(offsetInDays)
 	
 	return DateToString(dateToConvert)
 }

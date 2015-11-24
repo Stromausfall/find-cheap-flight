@@ -1,17 +1,17 @@
 package data
 
 import (
-	"net/http"
-	"github.com/stromausfall/find-cheap-flight/data/retrieve/geoinfo"
 	"bytes"
-	"html/template"
+	"github.com/stromausfall/find-cheap-flight/data/retrieve/geoinfo"
 	"github.com/stromausfall/find-cheap-flight/utils"
+	"html/template"
+	"net/http"
 )
 
 type selectionData struct {
-	Name string
+	Name      string
 	ShortName string
-	Items *[]geoinfo.AirportData
+	Items     *[]geoinfo.AirportData
 }
 
 const validAirportsHtmlData = `
@@ -27,23 +27,23 @@ const validAirportsHtmlData = `
 
 func createAiportsHtmls(name, shortName string, items *[]geoinfo.AirportData) template.HTML {
 	arguments := selectionData{
-		Name:name,
-		ShortName:shortName,
-		Items:items,
+		Name:      name,
+		ShortName: shortName,
+		Items:     items,
 	}
-	
+
 	// create, initialize and use the template
 	uninitializedTemplate := template.New("valid airports entry template")
 	initializedTempalte, err := uninitializedTemplate.Parse(validAirportsHtmlData)
 	utils.CheckErr(err, "problem while parsing template")
 
-	var stringBuffer bytes.Buffer  
+	var stringBuffer bytes.Buffer
 	err = initializedTempalte.Execute(&stringBuffer, arguments)
 	utils.CheckErr(err, "problem while executing template")
-	
+
 	resultString := stringBuffer.String()
 	unescapable := template.HTML(resultString)
-	
+
 	return unescapable
 }
 
