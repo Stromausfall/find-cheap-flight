@@ -21,7 +21,7 @@ func collectValues(r *http.Request, prefix string) []string {
 	return result
 }
 
-type FlightsToSearch struct {
+type flightsToSearch struct {
 	minimumStay           int32
 	maximumStay           int32
 	earliestDepartureDate time.Time
@@ -30,8 +30,15 @@ type FlightsToSearch struct {
 	destAirports          []string
 }
 
-func parseFormValues(r *http.Request) FlightsToSearch {
-	var result FlightsToSearch
+type FlightQuery struct {
+	stayDuration  int32
+	departureData time.Time
+	startAirport  string
+	destAirport   string
+}
+
+func parseFormValues(r *http.Request) flightsToSearch {
+	var result flightsToSearch
 	var earliestDepartureDateRawString string
 	var latestDepartureDateRawString string
 
@@ -47,7 +54,7 @@ func parseFormValues(r *http.Request) FlightsToSearch {
 	return result
 }
 
-func verifyDates(data *FlightsToSearch) string {
+func verifyDates(data *flightsToSearch) string {
 	error := ""
 	nilDate := time.Time{}
 
@@ -86,7 +93,36 @@ func verifyDates(data *FlightsToSearch) string {
 	return error
 }
 
-func verifyAirports(data *FlightsToSearch) string {
+func calculatePossibleQueries(data *flightsToSearch) []FlightQuery {
+	result := make([]FlightQuery, 0)
+
+	// stay
+	for stayDuration := data.minimumStay; stayDuration <= data.maximumStay; stayDuration++ {
+		// date
+		for departureDate := data.earliestDepartureDate; !departureDate.After(data.latestDepartureDate); departureDate = departureDate.Add(time.Hour * 24) {
+			// start airport
+			for _, startAirport := range data.startAirports {
+				// dest airport
+				for _, destAirport := range data.destAirports {
+					// create query
+					flightQuery := FlightQuery{
+						stayDuration:  stayDuration,
+						departureData: departureDate,
+						startAirport:  startAirport,
+						destAirport:   destAirport,
+					}
+
+					// add it
+					result = append(result, flightQuery)
+				}
+			}
+		}
+	}
+
+	return result
+}
+
+func verifyAirports(data *flightsToSearch) string {
 	error := ""
 
 	if len(data.startAirports) == 0 {
@@ -121,15 +157,17 @@ func DisplayDataVerification(w http.ResponseWriter, r *http.Request, googleMapsA
 	// without feedback to the user (no need to handle blatantly incorrect usage)
 	error = error + verifyAirports(&result)
 	error = error + verifyDates(&result)
+	possibleQueriesCount := len(calculatePossibleQueries(&result))
 
 	fmt.Println("result : ", result)
 	fmt.Println("error : ", error)
 
 	arguments.DataToAddBeforeSubmitButton = template.HTML("<font color=\"red\"><b>" + error + "</b></font>")
+	arguments.DataToAddBeforeSubmitButton = arguments.DataToAddBeforeSubmitButton + template.HTML(fmt.Sprintf("<b>%v</b></br>", possibleQueriesCount))
 
-// TODO : if no error then display the button to calculate, but also always display the button to CHANGE input
-// TODO : display the possible number of queries calculated from the input data !
-// TODO : what do if more than 50 possible queries ??
+	// TODO : if no error then display the button to calculate, but also always display the button to CHANGE input
+	// TODO : display the possible number of queries calculated from the input data !
+	// TODO : what do if more than 50 possible queries ??
 
 	DisplayPage(w, arguments)
 }

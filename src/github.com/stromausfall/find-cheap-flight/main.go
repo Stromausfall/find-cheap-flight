@@ -1,17 +1,17 @@
 package main
 
 import (
-	"net/http"
 	"github.com/stromausfall/find-cheap-flight/data"
 	"github.com/stromausfall/find-cheap-flight/utils"
+	"net/http"
 )
 
 func main() {
 	googleMapsApiCredentials := "GOOGLE MAPS API CREDENTIALS"
-	geonameAccount := "GEONAME ACCOUNT" 
-	
+	geonameAccount := "GEONAME ACCOUNT"
+
 	// install handlers
-	go http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {	
+	go http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		data.DisplayDataEntry(w, r, googleMapsApiCredentials)
 	})
 	go http.HandleFunc("/selectAirports", func(w http.ResponseWriter, r *http.Request) {

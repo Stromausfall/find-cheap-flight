@@ -1,9 +1,9 @@
 package utils
 
 import (
+	"fmt"
 	"strings"
 	"testing"
-	"fmt"
 )
 
 func FailIfStringDoesntHaveSubstring(t *testing.T, s, subString string) {

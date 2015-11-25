@@ -8,7 +8,7 @@ import (
 )
 
 func TestVerifyAirportsBothNull(t *testing.T) {
-	testData := FlightsToSearch{}
+	testData := flightsToSearch{}
 
 	error := verifyAirports(&testData)
 
@@ -17,7 +17,7 @@ func TestVerifyAirportsBothNull(t *testing.T) {
 }
 
 func TestVerifyAirportsSameAirportInBoth(t *testing.T) {
-	testData := FlightsToSearch{}
+	testData := flightsToSearch{}
 	testData.destAirports = []string{"INN", "VIE"}
 	testData.startAirports = []string{"INN", "PEK"}
 
@@ -26,8 +26,8 @@ func TestVerifyAirportsSameAirportInBoth(t *testing.T) {
 	utils.FailIfStringDoesntHaveSubstring(t, error, "the same airport (INN) can't be used for start and destination !</br>")
 }
 
-func buildValidTestData() FlightsToSearch {
-	return FlightsToSearch{
+func buildValidTestData() flightsToSearch {
+	return flightsToSearch{
 		minimumStay:           3,
 		maximumStay:           5,
 		earliestDepartureDate: utils.RawDateNow(1),
@@ -98,4 +98,210 @@ func TestVerifyMaxStaySmallerThanMinStay(t *testing.T) {
 	error := verifyDates(&testData)
 
 	utils.FailIfStringDoesntHaveSubstring(t, error, fmt.Sprintf("minimumStay was bigger (%v) than maximumStay (%v) !</br>", testData.minimumStay, testData.maximumStay))
+}
+
+func TestCalculatePossibleQueriesOnlyOne(t *testing.T) {
+	actualDate := time.Now()
+
+	argument := flightsToSearch{
+		minimumStay:           6,
+		maximumStay:           6,
+		earliestDepartureDate: actualDate,
+		latestDepartureDate:   actualDate,
+		startAirports:         []string{"INN"},
+		destAirports:          []string{"PEK"},
+	}
+	expectedQuery := FlightQuery{
+		stayDuration:  6,
+		departureData: actualDate,
+		startAirport:  "INN",
+		destAirport:   "PEK",
+	}
+
+	queries := calculatePossibleQueries(&argument)
+
+	if len(queries) != 1 {
+		t.Errorf("there should be exactly on query - but there were : %v", len(queries))
+	}
+
+	if queries[0] != expectedQuery {
+		t.Errorf("returned query %v is not as expected %v", queries[0], expectedQuery)
+	}
+}
+
+func TestCalculatePossibleQueriesCheckStayTime(t *testing.T) {
+	actualDate := time.Now()
+
+	argument := flightsToSearch{
+		minimumStay:           5,
+		maximumStay:           6,
+		earliestDepartureDate: actualDate,
+		latestDepartureDate:   actualDate,
+		startAirports:         []string{"INN"},
+		destAirports:          []string{"PEK"},
+	}
+	expectedQuery1 := FlightQuery{
+		stayDuration:  5,
+		departureData: actualDate,
+		startAirport:  "INN",
+		destAirport:   "PEK",
+	}
+	expectedQuery2 := FlightQuery{
+		stayDuration:  6,
+		departureData: actualDate,
+		startAirport:  "INN",
+		destAirport:   "PEK",
+	}
+
+	queries := calculatePossibleQueries(&argument)
+
+	if len(queries) != 2 {
+		t.Errorf("there should be exactly two queries - but there were : %v", len(queries))
+	}
+
+	if queries[0] != expectedQuery1 {
+		t.Errorf("returned query1 %v is not as expected %v", queries[0], expectedQuery1)
+	}
+
+	if queries[1] != expectedQuery2 {
+		t.Errorf("returned query2 %v is not as expected %v", queries[1], expectedQuery2)
+	}
+}
+
+func TestCalculatePossibleQueriesCheckDepartureDate(t *testing.T) {
+	actualDate1 := utils.DateFromString("2015-11-25")
+	actualDate2 := utils.DateFromString("2015-11-26")
+
+	argument := flightsToSearch{
+		minimumStay:           6,
+		maximumStay:           6,
+		earliestDepartureDate: actualDate1,
+		latestDepartureDate:   actualDate2,
+		startAirports:         []string{"INN"},
+		destAirports:          []string{"PEK"},
+	}
+	expectedQuery1 := FlightQuery{
+		stayDuration:  6,
+		departureData: actualDate1,
+		startAirport:  "INN",
+		destAirport:   "PEK",
+	}
+	expectedQuery2 := FlightQuery{
+		stayDuration:  6,
+		departureData: actualDate2,
+		startAirport:  "INN",
+		destAirport:   "PEK",
+	}
+
+	queries := calculatePossibleQueries(&argument)
+
+	if len(queries) != 2 {
+		t.Errorf("there should be exactly two queries - but there were : %v", len(queries))
+	}
+
+	if queries[0] != expectedQuery1 {
+		t.Errorf("returned query1 %v is not as expected %v", queries[0], expectedQuery1)
+	}
+
+	if queries[1] != expectedQuery2 {
+		t.Errorf("returned query2 %v is not as expected %v", queries[1], expectedQuery2)
+	}
+}
+
+func TestCalculatePossibleQueriesCheckStartAirports(t *testing.T) {
+	actualDate := time.Now()
+
+	argument := flightsToSearch{
+		minimumStay:           6,
+		maximumStay:           6,
+		earliestDepartureDate: actualDate,
+		latestDepartureDate:   actualDate,
+		startAirports:         []string{"INN", "VIE"},
+		destAirports:          []string{"PEK"},
+	}
+	expectedQuery1 := FlightQuery{
+		stayDuration:  6,
+		departureData: actualDate,
+		startAirport:  "INN",
+		destAirport:   "PEK",
+	}
+	expectedQuery2 := FlightQuery{
+		stayDuration:  6,
+		departureData: actualDate,
+		startAirport:  "VIE",
+		destAirport:   "PEK",
+	}
+
+	queries := calculatePossibleQueries(&argument)
+
+	if len(queries) != 2 {
+		t.Errorf("there should be exactly two queries - but there were : %v", len(queries))
+	}
+
+	if queries[0] != expectedQuery1 {
+		t.Errorf("returned query1 %v is not as expected %v", queries[0], expectedQuery1)
+	}
+
+	if queries[1] != expectedQuery2 {
+		t.Errorf("returned query2 %v is not as expected %v", queries[1], expectedQuery2)
+	}
+}
+
+func TestCalculatePossibleQueriesCheckDestAirports(t *testing.T) {
+	actualDate := time.Now()
+
+	argument := flightsToSearch{
+		minimumStay:           6,
+		maximumStay:           6,
+		earliestDepartureDate: actualDate,
+		latestDepartureDate:   actualDate,
+		startAirports:         []string{"INN"},
+		destAirports:          []string{"PEK", "PVG"},
+	}
+	expectedQuery1 := FlightQuery{
+		stayDuration:  6,
+		departureData: actualDate,
+		startAirport:  "INN",
+		destAirport:   "PEK",
+	}
+	expectedQuery2 := FlightQuery{
+		stayDuration:  6,
+		departureData: actualDate,
+		startAirport:  "INN",
+		destAirport:   "PVG",
+	}
+
+	queries := calculatePossibleQueries(&argument)
+
+	if len(queries) != 2 {
+		t.Errorf("there should be exactly two queries - but there were : %v", len(queries))
+	}
+
+	if queries[0] != expectedQuery1 {
+		t.Errorf("returned query1 %v is not as expected %v", queries[0], expectedQuery1)
+	}
+
+	if queries[1] != expectedQuery2 {
+		t.Errorf("returned query2 %v is not as expected %v", queries[1], expectedQuery2)
+	}
+}
+
+func TestCalculatePossibleQueriesCheckCount(t *testing.T) {
+	actualDate1 := utils.DateFromString("2015-11-25")
+	actualDate2 := utils.DateFromString("2015-11-26")
+
+	argument := flightsToSearch{
+		minimumStay:           5,
+		maximumStay:           6,
+		earliestDepartureDate: actualDate1,
+		latestDepartureDate:   actualDate2,
+		startAirports:         []string{"INN", "VIE"},
+		destAirports:          []string{"PEK", "PVG"},
+	}
+
+	queries := calculatePossibleQueries(&argument)
+
+	if len(queries) != 16 {
+		t.Errorf("there should be exactly eight queries - but there were : %v", len(queries))
+	}
 }
