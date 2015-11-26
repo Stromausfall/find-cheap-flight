@@ -145,8 +145,8 @@ func verifyAirports(data *flightsToSearch) string {
 }
 
 func DisplayDataVerification(w http.ResponseWriter, r *http.Request, googleMapsApiCredentials string, geonameAccount string) {
-	arguments := CreateArguments(r, googleMapsApiCredentials, "????", false, "Find Cheap Flights - data verification")
-	arguments.SubmitButtonText = "Query flights"
+	arguments := CreateArguments(r, googleMapsApiCredentials, "", false, "Find Cheap Flights - data verification")
+	arguments.SubmitButtonText = "Change Data"
 
 	result := parseFormValues(r)
 	error := ""
@@ -157,17 +157,22 @@ func DisplayDataVerification(w http.ResponseWriter, r *http.Request, googleMapsA
 	// without feedback to the user (no need to handle blatantly incorrect usage)
 	error = error + verifyAirports(&result)
 	error = error + verifyDates(&result)
-	possibleQueriesCount := len(calculatePossibleQueries(&result))
 
-	fmt.Println("result : ", result)
-	fmt.Println("error : ", error)
+	if error == "" {
+		possibleQueriesCount := len(calculatePossibleQueries(&result))
+		
+		if possibleQueriesCount <= 50 {
+			arguments.DataToAddBeforeSubmitButton = arguments.DataToAddBeforeSubmitButton + template.HTML(fmt.Sprintf("<b>Found <font color=\"green\">%v</font> queries</b></br>", possibleQueriesCount))
+			arguments.DataToAddAfterSubmitForm = template.HTML("<form action=\"/calculate\" method=\"post\"><div><input type=\"submit\" value=\"Calculate\"></div></form>")
+		} else {
+			arguments.DataToAddBeforeSubmitButton = arguments.DataToAddBeforeSubmitButton + template.HTML(fmt.Sprintf("<b>Only 50 queries are supported but there were <font color=\"red\">%v</font></b></br>", possibleQueriesCount))
+		}
+	} else {
+		arguments.DataToAddBeforeSubmitButton = template.HTML("<font color=\"red\"><b>" + error + "</b></font>")
+	}
 
-	arguments.DataToAddBeforeSubmitButton = template.HTML("<font color=\"red\"><b>" + error + "</b></font>")
-	arguments.DataToAddBeforeSubmitButton = arguments.DataToAddBeforeSubmitButton + template.HTML(fmt.Sprintf("<b>%v</b></br>", possibleQueriesCount))
-
-	// TODO : if no error then display the button to calculate, but also always display the button to CHANGE input
-	// TODO : display the possible number of queries calculated from the input data !
-	// TODO : what do if more than 50 possible queries ??
+	// TODO : MARSHAL queries to JSON and transmit that to the calculate page !
+	// TODO : OR pass an ID and keep the queries internally in a map or so
 
 	DisplayPage(w, arguments)
 }

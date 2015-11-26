@@ -8,7 +8,7 @@ import (
 
 func main() {
 	googleMapsApiCredentials := "GOOGLE MAPS API CREDENTIALS"
-	geonameAccount := "GEONAME ACCOUNT"
+	geonameAccount := "GEONAME ACCOUNT"  
 
 	// install handlers
 	go http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -19,6 +19,8 @@ func main() {
 	})
 	go http.HandleFunc("/dataVerification", func(w http.ResponseWriter, r *http.Request) {
 		data.DisplayDataVerification(w, r, googleMapsApiCredentials, geonameAccount)
+	})
+	go http.HandleFunc("/calculate", func(w http.ResponseWriter, r *http.Request) {
 	})
 
 	utils.OpenURL("http://localhost:80")

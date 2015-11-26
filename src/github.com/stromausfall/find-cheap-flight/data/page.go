@@ -67,6 +67,7 @@ const dataHtmlData = `
 				<input type="hidden" id="destinationLocationRangeInput" name="destinationLocationRangeInput" value="">
 				<div><input type="submit" value="{{.SubmitButtonText}}"></div>
 			</form>
+			{{.DataToAddAfterSubmitForm}}
 		</div>
 		<div id="map"></div>
 			<script>
@@ -169,6 +170,7 @@ type DataEntryDisplayArgs struct {
 	PageTitle                   string
 	DataToAddBeforeSubmitButton template.HTML
 	SubmitButtonText            string
+	DataToAddAfterSubmitForm template.HTML
 }
 
 func createDefaultDataEntryDisplayArgs(googleMapsApiCredentials string) *DataEntryDisplayArgs {
