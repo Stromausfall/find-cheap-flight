@@ -1,15 +1,16 @@
 package main
 
 import (
+	"github.com/stromausfall/find-cheap-flight/calculate"
 	"github.com/stromausfall/find-cheap-flight/data"
 	"github.com/stromausfall/find-cheap-flight/utils"
 	"net/http"
-	"github.com/stromausfall/find-cheap-flight/calculate"
 )
 
 func main() {
-	googleMapsApiCredentials := "GOOGLE MAPS API CREDENTIALS"
-	geonameAccount := "GEONAME ACCOUNT" 
+	googleMapsApiCredentials := "GOOGLE MAPS JAVASCRIPT API CREDENTIALS"
+	googleQPXExpressCredentials := "GOOGLE QPX EXPRESS SERVER CREDENTIALS"
+	geonameAccount := "GEONAME ACCOUNT"
 
 	// install handlers
 	go http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +23,10 @@ func main() {
 		data.DisplayDataVerification(w, r, googleMapsApiCredentials)
 	})
 	go http.HandleFunc("/calculate", func(w http.ResponseWriter, r *http.Request) {
-		calculate.DisplayPage(w, r, googleMapsApiCredentials)
+		calculate.DisplayCalculatePage(w, r, googleQPXExpressCredentials)
+	})
+	go http.HandleFunc("/refreshResults", func(w http.ResponseWriter, r *http.Request) {
+		calculate.DisplayRefreshPagePage(w, r)
 	})
 
 	utils.OpenURL("http://localhost:80")

@@ -170,7 +170,7 @@ type DataEntryDisplayArgs struct {
 	PageTitle                   string
 	DataToAddBeforeSubmitButton template.HTML
 	SubmitButtonText            string
-	DataToAddAfterSubmitForm template.HTML
+	DataToAddAfterSubmitForm    template.HTML
 }
 
 func createDefaultDataEntryDisplayArgs(googleMapsApiCredentials string) *DataEntryDisplayArgs {

@@ -102,6 +102,7 @@ func TestVerifyMaxStaySmallerThanMinStay(t *testing.T) {
 
 func TestCalculatePossibleQueriesOnlyOne(t *testing.T) {
 	actualDate := time.Now()
+	actualEndDate := actualDate.Add(time.Hour * time.Duration(24*6))
 
 	argument := flightsToSearch{
 		minimumStay:           6,
@@ -112,10 +113,10 @@ func TestCalculatePossibleQueriesOnlyOne(t *testing.T) {
 		destAirports:          []string{"PEK"},
 	}
 	expectedQuery := FlightQuery{
-		StayDuration:  6,
-		DepartureData: actualDate,
-		StartAirport:  "INN",
-		DestAirport:   "PEK",
+		StartDate:    actualDate,
+		BackDate:     actualEndDate,
+		StartAirport: "INN",
+		DestAirport:  "PEK",
 	}
 
 	queries := calculatePossibleQueries(&argument)
@@ -130,27 +131,29 @@ func TestCalculatePossibleQueriesOnlyOne(t *testing.T) {
 }
 
 func TestCalculatePossibleQueriesCheckStayTime(t *testing.T) {
-	actualDate := time.Now()
+	actualStartDate := time.Now()
+	actualEndDate1 := actualStartDate.Add(time.Hour * time.Duration(24*5))
+	actualEndDate2 := actualStartDate.Add(time.Hour * time.Duration(24*6))
 
 	argument := flightsToSearch{
 		minimumStay:           5,
 		maximumStay:           6,
-		earliestDepartureDate: actualDate,
-		latestDepartureDate:   actualDate,
+		earliestDepartureDate: actualStartDate,
+		latestDepartureDate:   actualStartDate,
 		startAirports:         []string{"INN"},
 		destAirports:          []string{"PEK"},
 	}
 	expectedQuery1 := FlightQuery{
-		StayDuration:  5,
-		DepartureData: actualDate,
-		StartAirport:  "INN",
-		DestAirport:   "PEK",
+		StartDate:    actualStartDate,
+		BackDate:     actualEndDate1,
+		StartAirport: "INN",
+		DestAirport:  "PEK",
 	}
 	expectedQuery2 := FlightQuery{
-		StayDuration:  6,
-		DepartureData: actualDate,
-		StartAirport:  "INN",
-		DestAirport:   "PEK",
+		StartDate:    actualStartDate,
+		BackDate:     actualEndDate2,
+		StartAirport: "INN",
+		DestAirport:  "PEK",
 	}
 
 	queries := calculatePossibleQueries(&argument)
@@ -169,28 +172,30 @@ func TestCalculatePossibleQueriesCheckStayTime(t *testing.T) {
 }
 
 func TestCalculatePossibleQueriesCheckDepartureDate(t *testing.T) {
-	actualDate1 := utils.DateFromString("2015-11-25")
-	actualDate2 := utils.DateFromString("2015-11-26")
+	actualStartDate1 := utils.DateFromString("2015-11-05")
+	actualStartDate2 := utils.DateFromString("2015-11-06")
+	actualEndDate1 := utils.DateFromString("2015-11-11")
+	actualEndDate2 := utils.DateFromString("2015-11-12")
 
 	argument := flightsToSearch{
 		minimumStay:           6,
 		maximumStay:           6,
-		earliestDepartureDate: actualDate1,
-		latestDepartureDate:   actualDate2,
+		earliestDepartureDate: actualStartDate1,
+		latestDepartureDate:   actualStartDate2,
 		startAirports:         []string{"INN"},
 		destAirports:          []string{"PEK"},
 	}
 	expectedQuery1 := FlightQuery{
-		StayDuration:  6,
-		DepartureData: actualDate1,
-		StartAirport:  "INN",
-		DestAirport:   "PEK",
+		StartDate:    actualStartDate1,
+		BackDate:     actualEndDate1,
+		StartAirport: "INN",
+		DestAirport:  "PEK",
 	}
 	expectedQuery2 := FlightQuery{
-		StayDuration:  6,
-		DepartureData: actualDate2,
-		StartAirport:  "INN",
-		DestAirport:   "PEK",
+		StartDate:    actualStartDate2,
+		BackDate:     actualEndDate2,
+		StartAirport: "INN",
+		DestAirport:  "PEK",
 	}
 
 	queries := calculatePossibleQueries(&argument)
@@ -209,27 +214,28 @@ func TestCalculatePossibleQueriesCheckDepartureDate(t *testing.T) {
 }
 
 func TestCalculatePossibleQueriesCheckStartAirports(t *testing.T) {
-	actualDate := time.Now()
+	actualStartDate := time.Now()
+	actualEndDate := actualStartDate.Add(time.Hour * time.Duration(24*6))
 
 	argument := flightsToSearch{
 		minimumStay:           6,
 		maximumStay:           6,
-		earliestDepartureDate: actualDate,
-		latestDepartureDate:   actualDate,
+		earliestDepartureDate: actualStartDate,
+		latestDepartureDate:   actualStartDate,
 		startAirports:         []string{"INN", "VIE"},
 		destAirports:          []string{"PEK"},
 	}
 	expectedQuery1 := FlightQuery{
-		StayDuration:  6,
-		DepartureData: actualDate,
-		StartAirport:  "INN",
-		DestAirport:   "PEK",
+		StartDate:    actualStartDate,
+		BackDate:     actualEndDate,
+		StartAirport: "INN",
+		DestAirport:  "PEK",
 	}
 	expectedQuery2 := FlightQuery{
-		StayDuration:  6,
-		DepartureData: actualDate,
-		StartAirport:  "VIE",
-		DestAirport:   "PEK",
+		StartDate:    actualStartDate,
+		BackDate:     actualEndDate,
+		StartAirport: "VIE",
+		DestAirport:  "PEK",
 	}
 
 	queries := calculatePossibleQueries(&argument)
@@ -248,27 +254,28 @@ func TestCalculatePossibleQueriesCheckStartAirports(t *testing.T) {
 }
 
 func TestCalculatePossibleQueriesCheckDestAirports(t *testing.T) {
-	actualDate := time.Now()
+	actualStartDate := time.Now()
+	actualEndDate := actualStartDate.Add(time.Hour * time.Duration(24*6))
 
 	argument := flightsToSearch{
 		minimumStay:           6,
 		maximumStay:           6,
-		earliestDepartureDate: actualDate,
-		latestDepartureDate:   actualDate,
+		earliestDepartureDate: actualStartDate,
+		latestDepartureDate:   actualStartDate,
 		startAirports:         []string{"INN"},
 		destAirports:          []string{"PEK", "PVG"},
 	}
 	expectedQuery1 := FlightQuery{
-		StayDuration:  6,
-		DepartureData: actualDate,
-		StartAirport:  "INN",
-		DestAirport:   "PEK",
+		StartDate:    actualStartDate,
+		BackDate:     actualEndDate,
+		StartAirport: "INN",
+		DestAirport:  "PEK",
 	}
 	expectedQuery2 := FlightQuery{
-		StayDuration:  6,
-		DepartureData: actualDate,
-		StartAirport:  "INN",
-		DestAirport:   "PVG",
+		StartDate:    actualStartDate,
+		BackDate:     actualEndDate,
+		StartAirport: "INN",
+		DestAirport:  "PVG",
 	}
 
 	queries := calculatePossibleQueries(&argument)
