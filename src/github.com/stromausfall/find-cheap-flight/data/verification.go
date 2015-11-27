@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"encoding/json"
 )
 
 func collectValues(r *http.Request, prefix string) []string {
@@ -31,10 +32,10 @@ type flightsToSearch struct {
 }
 
 type FlightQuery struct {
-	stayDuration  int32
-	departureData time.Time
-	startAirport  string
-	destAirport   string
+	StayDuration  int32
+	DepartureData time.Time
+	StartAirport  string
+	DestAirport   string
 }
 
 func parseFormValues(r *http.Request) flightsToSearch {
@@ -106,10 +107,10 @@ func calculatePossibleQueries(data *flightsToSearch) []FlightQuery {
 				for _, destAirport := range data.destAirports {
 					// create query
 					flightQuery := FlightQuery{
-						stayDuration:  stayDuration,
-						departureData: departureDate,
-						startAirport:  startAirport,
-						destAirport:   destAirport,
+						StayDuration:  stayDuration,
+						DepartureData: departureDate,
+						StartAirport:  startAirport,
+						DestAirport:   destAirport,
 					}
 
 					// add it
@@ -144,7 +145,7 @@ func verifyAirports(data *flightsToSearch) string {
 	return error
 }
 
-func DisplayDataVerification(w http.ResponseWriter, r *http.Request, googleMapsApiCredentials string, geonameAccount string) {
+func DisplayDataVerification(w http.ResponseWriter, r *http.Request, googleMapsApiCredentials string) {
 	arguments := CreateArguments(r, googleMapsApiCredentials, "", false, "Find Cheap Flights - data verification")
 	arguments.SubmitButtonText = "Change Data"
 
@@ -159,11 +160,16 @@ func DisplayDataVerification(w http.ResponseWriter, r *http.Request, googleMapsA
 	error = error + verifyDates(&result)
 
 	if error == "" {
-		possibleQueriesCount := len(calculatePossibleQueries(&result))
+		possibleQueries := calculatePossibleQueries(&result)
+		possibleQueriesCount := len(possibleQueries)
 		
 		if possibleQueriesCount <= 50 {
 			arguments.DataToAddBeforeSubmitButton = arguments.DataToAddBeforeSubmitButton + template.HTML(fmt.Sprintf("<b>Found <font color=\"green\">%v</font> queries</b></br>", possibleQueriesCount))
-			arguments.DataToAddAfterSubmitForm = template.HTML("<form action=\"/calculate\" method=\"post\"><div><input type=\"submit\" value=\"Calculate\"></div></form>")
+			
+			data,error := json.Marshal(possibleQueries)
+			utils.CheckErr(error, "Problem when trying to marshall queries !")
+
+			arguments.DataToAddAfterSubmitForm = template.HTML("<form action=\"/calculate\" method=\"post\"><div><input type=\"hidden\" id=\"flightQueries\" name=\"flightQueries\" value=\"" + template.HTMLEscapeString(string(data)) + "\"><input type=\"submit\" value=\"Calculate\"></div></form>")
 		} else {
 			arguments.DataToAddBeforeSubmitButton = arguments.DataToAddBeforeSubmitButton + template.HTML(fmt.Sprintf("<b>Only 50 queries are supported but there were <font color=\"red\">%v</font></b></br>", possibleQueriesCount))
 		}
