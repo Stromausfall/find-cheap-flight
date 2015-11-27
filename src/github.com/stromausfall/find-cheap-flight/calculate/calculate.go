@@ -127,6 +127,10 @@ func DisplayCalculatePage(w http.ResponseWriter, r *http.Request, googleQPXExpre
 
 	for _, query := range flightQueries {
 		go performQuery(query, googleQPXExpressCredentials)
+		
+		// there is a limit of 10 queries/second/user for QPX Express FREE
+		// if we do about 1 query/second/user then it should work !
+		time.Sleep(time.Second)
 	}
 }
 
