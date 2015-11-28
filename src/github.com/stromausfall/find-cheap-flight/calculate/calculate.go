@@ -163,6 +163,8 @@ func performQuery(query data.FlightQuery, googleQPXExpressCredentials string) {
 	tripRequest.Request.Refundable = false
 	tripRequest.Request.Passengers = &qpxexpress.PassengerCounts{}
 	tripRequest.Request.Passengers.AdultCount = 1
+	// we only need one solution (it is already the cheapest one)
+	tripRequest.Request.Solutions = 1
 
 	result, err := service.Trips.Search(&tripRequest).Do()
 	utils.CheckErr(err, "unable to retrieve trips from Google QPX Express")
