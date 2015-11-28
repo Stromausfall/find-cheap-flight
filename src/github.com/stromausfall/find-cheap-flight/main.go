@@ -8,8 +8,8 @@ import (
 )
 
 func main() {
-	googleMapsApiCredentials := "GOOGLE MAPS JAVASCRIPT API CREDENTIALS"
-	googleQPXExpressCredentials := "GOOGLE QPX EXPRESS SERVER CREDENTIALS"
+	googleMapsApiCredentials := "GOOGLE API Key - Browser"
+	googleQPXExpressCredentials := "GOOGLE API Key - Server"
 	geonameAccount := "GEONAME ACCOUNT"
 
 	// install handlers

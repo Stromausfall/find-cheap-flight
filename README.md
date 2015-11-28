@@ -11,7 +11,7 @@ You can enter
 This program is by no means perfect - it is not able to get the same price as using google flights directly - therefore it can only serve to find trends
 
 to use it you need a google project and credentials for :
-- OAuth 2.0 client ID >> Other
+- API key >> Server
 - API key >> Browser
 
 additionally the following APIs need to be enabled :
